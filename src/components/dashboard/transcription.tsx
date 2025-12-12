@@ -48,7 +48,7 @@ export default function DashboardTranscription({ transcription }: TranscriptionV
                 </div>
 
                 <div className="space-y-4 relative">
-                    <div className={`relative max-h-72 overflow-y-auto'`}>
+                    <div className={`relative max-h-72 overflow-y-auto`}>
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{transcription.text}</p>
                     </div>
                     <div className="flex justify-between items-center mt-5"></div>

@@ -17,7 +17,7 @@ import Loader from '@/components/ui/loader'
 
 export default function Page() {
     const router = useRouter()
-    const [isSuccesfulPayment, setIsSuccesfulPayment] = useState(true)
+    const [isSuccessfulPayment, setIsSuccessfulPayment] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
     const [isLoadingTranscription, setIsLoadingTranscription] = useState(false)
     const [transcription, setTranscription] = useState<null | Transcription>(null)
@@ -25,7 +25,7 @@ export default function Page() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const sessionId = urlParams.get('payment_session_id')
-        setIsSuccesfulPayment(Boolean(sessionId))
+        setIsSuccessfulPayment(Boolean(sessionId))
     }, [])
 
     async function onAudioFileUpload(file: File) {
@@ -48,14 +48,13 @@ export default function Page() {
     }
 
     function handlerDashboardRedirect() {
-        console.log('here')
         router.push('/dashboard')
     }
 
     return (
         <>
             <Head />
-            {isSuccesfulPayment ? <SupportPaymentNotification /> : null}
+            {isSuccessfulPayment ? <SupportPaymentNotification /> : null}
             <div className="flex justify-center">
                 <div className="p-5">
                     <header className="flex justify-center flex-col">

@@ -33,7 +33,6 @@ export async function confirmTranscriptionRequest(
     transcription: Transcription,
     fileName: string
 ) {
-    console.log('confirm')
     return prisma.transcriptionRequest.update({
         where: {
             id: transcriptionRequest.id,
@@ -47,7 +46,6 @@ export async function confirmTranscriptionRequest(
 }
 
 export async function setTranscriptionRequestError(transcriptionRequest: TranscriptionRequest, error: string) {
-    console.log(error)
     return prisma.transcriptionRequest.update({
         where: {
             id: transcriptionRequest.id,

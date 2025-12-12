@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
 
     if (!userId) {
-        return NextResponse.json({ error: 'Unathorized ' }, { status: 401 })
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { amount }: { amount: number } = await request.json()
@@ -38,8 +38,6 @@ export async function POST(request: NextRequest) {
             cancel_url: `${domain}/`,
             metadata: { userId },
         })
-
-        console.log(session.id)
 
         return NextResponse.json({ sessionId: session.id }, { status: 200 })
     } catch (error) {
