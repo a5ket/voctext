@@ -1,16 +1,24 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
 import Stripe from 'stripe'
-import { NextRequest } from 'next/server'
 import { createPayment } from '@/lib/data'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2024-12-18.acacia',
+})
+
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(request: NextRequest) {
     const body = await request.text()
-    const signature = request.headers.get('stripe-signature') || ''
+    const headersList = await headers()
+    const signature = headersList.get('stripe-signature')
 
-    let event
+    if (!signature) {
+        return NextResponse.json({ error: 'No signature' }, { status: 400 })
+    }
+
+    let event: Stripe.Event
 
     try {
         event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
@@ -20,12 +28,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (event.type === 'checkout.session.completed') {
-        const session = event.data.object
+        const session = event.data.object as Stripe.Checkout.Session
         const { payment_intent, amount_total, status } = session
         const { userId } = session.metadata as { userId: string }
 
         if (!payment_intent || amount_total == null || !status || !userId) {
-            console.error(`Missing session data`, session)
+            console.error('Missing session data', session)
             return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
         }
 

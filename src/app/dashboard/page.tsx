@@ -1,20 +1,35 @@
-import { fetchTranscriptions } from '@/lib/data'
-import { auth } from '@clerk/nextjs/server'
-import Dashboard from '@/components/dashboard/dashboard'
+'use client'
 
+import { useState, useEffect } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import Dashboard from '@/components/dashboard'
+import { Transcription } from '@/lib/definitions'
+import { fetchTranscriptions } from '@/lib/api'
 
-export default async function Page() {
-    const { userId } = await auth()
+export default function DashboardPage() {
+    const { userId } = useAuth()
+    const [transcriptions, setTranscriptions] = useState<Transcription[]>([])
+    const [isLoading, setIsLoading] = useState(true)
 
-    if (!userId) {
-        throw Error('missing user')
+    useEffect(() => {
+        async function loadTranscriptions() {
+            if (userId) {
+                try {
+                    const data = await fetchTranscriptions()
+                    setTranscriptions(data)
+                } catch (error) {
+                    console.error('Failed to load transcriptions:', error)
+                }
+                setIsLoading(false)
+            }
+        }
+
+        loadTranscriptions()
+    }, [userId])
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>
     }
 
-    const transcirptions = await fetchTranscriptions(userId)
-
-    return <Dashboard transcriptions={transcirptions} />
-}
-
-export const metadata = {
-    title: 'Dashboard - Voctext',
+    return <Dashboard transcriptions={transcriptions} />
 }

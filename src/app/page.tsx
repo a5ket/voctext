@@ -4,38 +4,65 @@ import { useState, useEffect } from 'react'
 import Upload from '../components/upload/upload'
 import TranscriptionViewer from '../components/upload/viewer'
 import { Transcription } from '@/lib/definitions'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Text } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { uploadFile } from '@/lib/upload'
+import { uploadFileTranscription } from '@/lib/api'
 import Head from './head'
-import { UploadError } from '@/components/upload/error'
 import SupportForm from '@/components/support/form'
 import { SupportPaymentNotification } from '@/components/support/notification'
 import Loader from '@/components/ui/loader'
+import UploadLimits from '@/components/upload-limits'
 
 export default function Page() {
     const router = useRouter()
+    const { userId } = useAuth()
     const [isSuccessfulPayment, setIsSuccessfulPayment] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
     const [isLoadingTranscription, setIsLoadingTranscription] = useState(false)
     const [transcription, setTranscription] = useState<null | Transcription>(null)
+    const [uploadLimits, setUploadLimits] = useState<{
+        transcriptionCount: number
+        maxTranscriptions: number
+        remainingTranscriptions: number
+        isUserSupporter: boolean
+    } | null>(null)
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const sessionId = urlParams.get('payment_session_id')
         setIsSuccessfulPayment(Boolean(sessionId))
-    }, [])
+
+        fetchUploadLimits()
+    }, [userId])
+
+    async function fetchUploadLimits() {
+        try {
+            const response = await fetch('/api/user-stats')
+            const data = await response.json()
+            setUploadLimits(data)
+        } catch (error) {
+            console.error('Failed to fetch upload limits:', error)
+        }
+    }
 
     async function onAudioFileUpload(file: File) {
+        if (uploadLimits && uploadLimits.remainingTranscriptions <= 0) {
+            setUploadError('Upload limit reached. Please upgrade to continue uploading.')
+            return
+        }
+
         setUploadError(null)
         setTranscription(null)
         setIsLoadingTranscription(true)
 
         try {
-            const transcription = await uploadFile(file)
-            setTranscription(transcription)
+            const newTranscription = await uploadFileTranscription(file)
+            setTranscription(newTranscription)
+            await fetchUploadLimits()
+            setRefreshTrigger(prev => prev + 1)
         } catch (error) {
             if ((error as Error).message) {
                 setUploadError((error as Error).message)
@@ -58,34 +85,48 @@ export default function Page() {
             <div className="flex justify-center">
                 <div className="p-5">
                     <header className="flex justify-center flex-col">
-                        <nav className="flex flex-1 justify-end">
+                        <nav className="flex flex-1 justify-end gap-3">
                             <SignedOut>
                                 <SignInButton>
                                     <Button size="default">Sign In</Button>
                                 </SignInButton>
                             </SignedOut>
                             <SignedIn>
-                                <UserButton>
-                                    <UserButton.MenuItems>
-                                        <UserButton.Action
-                                            label="Transcriptions"
-                                            labelIcon={<Text />}
-                                            onClick={handlerDashboardRedirect}
-                                        />
-                                    </UserButton.MenuItems>
-                                </UserButton>
+                                <Button
+                                    size="default"
+                                    variant="outline"
+                                    onClick={handlerDashboardRedirect}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Text className="w-4 h-4" />
+                                    Dashboard
+                                </Button>
+                                <UserButton />
                             </SignedIn>
                         </nav>
                         <h1 className="text-4xl font-bold p-5 mx-auto">Voctext</h1>
                         <h2 className="text-3xl mx-auto">Audio Transcription</h2>
                     </header>
-                    <main className="flex flex-col items-center">
-                        <div>
-                            <Upload onFileUploadAction={onAudioFileUpload} onUploadError={setUploadError} />
-                            {uploadError ? <UploadError error={uploadError} /> : null}
-                            {transcription ? <TranscriptionViewer transcription={transcription} /> : null}
+                    <main className="flex flex-col items-center space-y-6">
+                        <UploadLimits refreshTrigger={refreshTrigger} />
+
+                        <div className="w-full max-w-[600px] px-4">
+                            <Upload
+                                onFileUploadAction={onAudioFileUpload}
+                                onUploadError={setUploadError}
+                                uploadError={uploadError}
+                                disabled={uploadLimits ? uploadLimits.remainingTranscriptions <= 0 : false}
+                                disabledMessage="Upload limit reached. Please upgrade to continue uploading."
+                            />
                         </div>
-                        {isLoadingTranscription ? <Loader /> : null}
+
+                        {transcription && (
+                            <div className="w-full max-w-[600px] px-4">
+                                <TranscriptionViewer transcription={transcription} />
+                            </div>
+                        )}
+
+                        {isLoadingTranscription && <Loader />}
                         <SupportForm />
                     </main>
                 </div>

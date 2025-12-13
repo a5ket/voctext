@@ -2,13 +2,17 @@
 
 import { useCallback } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
+import { UploadError } from './error'
 
 export interface FileDropzoneProps {
     onFileUploadAction: (file: File) => void
     onUploadError: (error: string) => void
+    uploadError?: string | null
+    disabled?: boolean
+    disabledMessage?: string
 }
 
-export default function Upload({ onFileUploadAction, onUploadError }: FileDropzoneProps) {
+export default function Upload({ onFileUploadAction, onUploadError, uploadError, disabled = false, disabledMessage }: FileDropzoneProps) {
     const onDrop = useCallback(
         <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[]) => {
             if (fileRejections.length > 0) {
@@ -16,9 +20,11 @@ export default function Upload({ onFileUploadAction, onUploadError }: FileDropzo
                 let errorMessage = 'Upload error'
 
                 if (error.code === 'file-invalid-type') {
-                    errorMessage = 'Invalid file type, please upload an audio file.'
+                    errorMessage = 'Invalid file type. Please upload MP3, WAV, or M4A files only.'
                 } else if (error.code === 'file-too-large') {
                     errorMessage = 'File is too large. Please upload a file smaller than 25MB.'
+                } else if (error.code === 'too-many-files') {
+                    errorMessage = 'Please upload only one file at a time.'
                 }
 
                 onUploadError(errorMessage)
@@ -32,7 +38,7 @@ export default function Upload({ onFileUploadAction, onUploadError }: FileDropzo
                 onFileUploadAction(file)
             }
         },
-        [onFileUploadAction]
+        [onFileUploadAction, onUploadError]
     )
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -40,23 +46,42 @@ export default function Upload({ onFileUploadAction, onUploadError }: FileDropzo
         accept: {
             'audio/mpeg': ['.mp3'],
             'audio/wav': ['.wav'],
+            'audio/x-wav': ['.wav'],
             'audio/mp4': ['.m4a'],
+            'audio/x-m4a': ['.m4a'],
         },
-        maxSize: 25 * 1024 * 1024, // 25MB
+        maxSize: 25 * 1024 * 1024,
         multiple: false,
+        disabled: disabled,
     })
 
     return (
-        <div className="max-w-3xl mx-auto p-6 space-y-6">
+        <div className="w-full max-w-[600px] space-y-4">
             <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors space-y-3 hover:border-primary
-                    ${isDragActive ? 'border-primary bg-primary/5' : ''}`}
+                className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-colors space-y-3
+                    ${disabled ? 'cursor-not-allowed bg-gray-100 border-gray-200' : 'cursor-pointer hover:border-primary'}
+                    ${isDragActive && !disabled ? 'border-primary bg-primary/5' : ''}
+                    ${uploadError ? 'border-red-300 bg-red-50/50' : disabled ? 'border-gray-200' : 'border-gray-300'}`}
             >
                 <input {...getInputProps()} />
-                <p className="text-muted-foreground">Drag and drop an audio file here, or click to select</p>
-                <p className="text-muted-foreground">Supported formats: MP3, WAV, M4A (max 25MB)</p>
+                {disabled ? (
+                    <>
+                        <p className="text-gray-400">Upload Disabled</p>
+                        <p className="text-gray-400 text-sm">{disabledMessage || 'Upload limit reached'}</p>
+                    </>
+                ) : (
+                    <>
+                        <p className="text-muted-foreground">Drag and drop an audio file here, or click to select</p>
+                        <p className="text-muted-foreground">Supported formats: MP3, WAV, M4A (max 25MB)</p>
+                    </>
+                )}
             </div>
+            {uploadError && (
+                <div className="mt-4">
+                    <UploadError error={uploadError} />
+                </div>
+            )}
         </div>
     )
 }

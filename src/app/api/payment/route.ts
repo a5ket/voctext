@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
                         product_data: {
                             name: 'Project Support',
                         },
-                        unit_amount: amount * 100, // Amount in cents
+                        unit_amount: amount * 100,
                     },
                     quantity: 1,
                 },

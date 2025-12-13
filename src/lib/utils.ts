@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: Date) {
-    return format(date, 'EEE MMM dd yyyy HH:mm:ss')
+    return format(date, 'MMM dd, yyyy')
 }
 
 export function formatDuration(duration: number) {

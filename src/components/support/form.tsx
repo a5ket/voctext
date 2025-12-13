@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation'
 import { useAuth } from '@clerk/nextjs'
 import { fetchPaymentSession } from '@/lib/payment'
 import { loadStripe } from '@stripe/stripe-js'
+import DemoBanner from '@/components/demo-banner'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -58,46 +59,49 @@ function SupportFormContent() {
     }
 
     return (
-        <Card className="w-full max-w-md mx-auto mt-10">
-            <CardHeader className="text-center">
-                <CardTitle className="text-3xl font-bold">Support Our Work</CardTitle>
-                <CardDescription className="text-lg">
-                    Choose your support tier and help us keep this service running
-                </CardDescription>
-            </CardHeader>
-            <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-6">
-                    <RadioGroup
-                        defaultValue={selectedAmount}
-                        onValueChange={setSelectedAmount}
-                        className="grid grid-cols-4 gap-2"
-                    >
-                        {tiers.map((tier) => (
-                            <div key={tier.value}>
-                                <RadioGroupItem
-                                    value={tier.value}
-                                    id={`amount-${tier.value}`}
-                                    className="peer sr-only"
-                                />
-                                <Label
-                                    htmlFor={`amount-${tier.value}`}
-                                    className="flex h-12 items-center justify-center rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10"
-                                >
-                                    {tier.label}
-                                </Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
+        <div className="w-full max-w-md mx-auto mt-10">
+            <Card>
+                <CardHeader className="text-center">
+                    <CardTitle className="text-3xl font-bold">Support Our Work</CardTitle>
+                    <CardDescription className="text-lg">
+                        Choose your support tier and help us keep this service running
+                    </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleSubmit}>
+                    <CardContent className="space-y-6">
+                        <RadioGroup
+                            defaultValue={selectedAmount}
+                            onValueChange={setSelectedAmount}
+                            className="grid grid-cols-4 gap-2"
+                        >
+                            {tiers.map((tier) => (
+                                <div key={tier.value}>
+                                    <RadioGroupItem
+                                        value={tier.value}
+                                        id={`amount-${tier.value}`}
+                                        className="peer sr-only"
+                                    />
+                                    <Label
+                                        htmlFor={`amount-${tier.value}`}
+                                        className="flex h-12 items-center justify-center rounded-md border-2 border-muted bg-popover hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10"
+                                    >
+                                        {tier.label}
+                                    </Label>
+                                </div>
+                            ))}
+                        </RadioGroup>
 
-                    <Button type="submit" className="w-full text-lg py-6" size="lg" disabled={isLoading}>
-                        Support with ${selectedAmount}
-                    </Button>
-                </CardContent>
-            </form>
-            <CardFooter className="justify-center text-sm text-muted-foreground">
-                Secure payment powered by Stripe
-            </CardFooter>
-        </Card>
+                        <Button type="submit" className="w-full text-lg py-6" size="lg" disabled={isLoading}>
+                            Support with ${selectedAmount}
+                        </Button>
+                    </CardContent>
+                </form>
+                <CardFooter className="justify-center text-sm text-muted-foreground">
+                    Secure payment powered by Stripe
+                </CardFooter>
+            </Card>
+            <DemoBanner />
+        </div>
     )
 }
 

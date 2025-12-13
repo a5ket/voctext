@@ -40,7 +40,7 @@ export default function TranscriptionViewer({ transcription }: TranscriptionView
     }, [transcription.text])
 
     return (
-        <Card className="w-full max-w-3xl mx-auto">
+        <Card className="w-full">
             <CardContent className="p-6">
                 <div className="grid grid-cols-3 gap-4 mb-6">
                     <div>
