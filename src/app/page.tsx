@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Upload from '../components/upload/upload'
 import TranscriptionViewer from '../components/upload/viewer'
 import { Transcription } from '@/lib/definitions'
@@ -28,27 +28,49 @@ export default function Page() {
         remainingTranscriptions: number
         isUserSupporter: boolean
     } | null>(null)
+    const [uploadLimitsLoading, setUploadLimitsLoading] = useState(false)
     const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+    const fetchUploadLimits = useCallback(async () => {
+        if (userId) {
+            setUploadLimitsLoading(true)
+            try {
+                const response = await fetch('/api/user-stats')
+                const data = await response.json()
+                setUploadLimits(data)
+            } catch (error) {
+                console.error('Failed to fetch upload limits:', error)
+            } finally {
+                setUploadLimitsLoading(false)
+            }
+        }
+    }, [userId])
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const sessionId = urlParams.get('payment_session_id')
-        setIsSuccessfulPayment(Boolean(sessionId))
+
+        if (sessionId) {
+            const shownKey = `payment_notification_shown_${sessionId}`
+            const hasBeenShown = localStorage.getItem(shownKey)
+
+            if (!hasBeenShown) {
+                setIsSuccessfulPayment(true)
+                localStorage.setItem(shownKey, 'true')
+
+                window.history.replaceState({}, '', window.location.pathname)
+            }
+        }
 
         fetchUploadLimits()
-    }, [userId])
-
-    async function fetchUploadLimits() {
-        try {
-            const response = await fetch('/api/user-stats')
-            const data = await response.json()
-            setUploadLimits(data)
-        } catch (error) {
-            console.error('Failed to fetch upload limits:', error)
-        }
-    }
+    }, [userId, fetchUploadLimits])
 
     async function onAudioFileUpload(file: File) {
+        if (!userId) {
+            router.push('/sign-in?message=Please sign in to upload audio files')
+            return
+        }
+
         if (uploadLimits && uploadLimits.remainingTranscriptions <= 0) {
             setUploadError('Upload limit reached. Please upgrade to continue uploading.')
             return
@@ -81,7 +103,7 @@ export default function Page() {
     return (
         <>
             <Head />
-            {isSuccessfulPayment ? <SupportPaymentNotification /> : null}
+            {isSuccessfulPayment ? <SupportPaymentNotification onDismiss={() => setIsSuccessfulPayment(false)} /> : null}
             <div className="flex justify-center">
                 <div className="p-5">
                     <header className="flex justify-center flex-col">
@@ -108,7 +130,7 @@ export default function Page() {
                         <h2 className="text-3xl mx-auto">Audio Transcription</h2>
                     </header>
                     <main className="flex flex-col items-center space-y-6">
-                        <UploadLimits refreshTrigger={refreshTrigger} />
+                        <UploadLimits refreshTrigger={refreshTrigger} loading={uploadLimitsLoading} />
 
                         <div className="w-full max-w-[600px] px-4">
                             <Upload
@@ -117,6 +139,7 @@ export default function Page() {
                                 uploadError={uploadError}
                                 disabled={uploadLimits ? uploadLimits.remainingTranscriptions <= 0 : false}
                                 disabledMessage="Upload limit reached. Please upgrade to continue uploading."
+                                loading={uploadLimitsLoading}
                             />
                         </div>
 

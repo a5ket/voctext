@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAuth } from '@clerk/nextjs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { FileAudio, Crown } from 'lucide-react'
@@ -14,43 +15,68 @@ interface UserStats {
 
 interface UploadLimitsProps {
     refreshTrigger?: number
+    loading?: boolean
 }
 
-export default function UploadLimits({ refreshTrigger }: UploadLimitsProps) {
+export default function UploadLimits({ refreshTrigger, loading: externalLoading }: UploadLimitsProps) {
+    const { isSignedIn } = useAuth()
     const [stats, setStats] = useState<UserStats | null>(null)
-    const [loading, setLoading] = useState(true)
+    const [internalLoading, setInternalLoading] = useState(true)
 
     useEffect(() => {
         async function fetchStats() {
-            try {
-                const response = await fetch('/api/user-stats')
-                const data = await response.json()
-                setStats(data)
-            } catch (error) {
-                console.error('Failed to fetch user stats:', error)
-            } finally {
-                setLoading(false)
+            if (isSignedIn) {
+                try {
+                    const response = await fetch('/api/user-stats')
+                    const data = await response.json()
+                    setStats(data)
+                } catch (error) {
+                    console.error('Failed to fetch user stats:', error)
+                }
             }
+            setInternalLoading(false)
         }
 
         fetchStats()
-    }, [refreshTrigger])
+    }, [refreshTrigger, isSignedIn])
 
-    if (loading) {
+    if (!isSignedIn) {
+        return (
+            <Card className="w-full max-w-md mx-auto mb-6 mt-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+                <CardContent className="p-6 text-center">
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-center gap-2">
+                            <Crown className="h-5 w-5 text-blue-600" />
+                            <h3 className="font-semibold text-blue-900">Get Started with Voctext</h3>
+                        </div>
+                        <p className="text-sm text-blue-700">
+                            Sign up to track your transcriptions and get free uploads to start!
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (externalLoading || internalLoading) {
         return (
             <Card className="w-full max-w-md mx-auto mb-6 mt-6">
                 <CardContent className="p-6">
-                    <div className="animate-pulse space-y-3">
-                        <div className="flex items-center justify-between">
-                            <div className="h-4 bg-gray-200 rounded w-24"></div>
-                            <div className="h-5 bg-gray-200 rounded w-16"></div>
+                    <div className="animate-pulse">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                                <div className="h-4 bg-gray-200 rounded w-20"></div>
+                            </div>
+                            <div className="h-6 bg-gray-200 rounded w-16"></div>
                         </div>
                         <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <div className="h-3 bg-gray-200 rounded w-20"></div>
-                                <div className="h-3 bg-gray-200 rounded w-16"></div>
+                            <div className="flex justify-between text-sm">
+                                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                <div className="h-4 bg-gray-200 rounded w-20"></div>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2"></div>
+                            <div className="h-4 bg-gray-200 rounded w-32 mt-2"></div>
                         </div>
                     </div>
                 </CardContent>

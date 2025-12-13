@@ -29,20 +29,49 @@ export async function POST(request: NextRequest) {
 
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object as Stripe.Checkout.Session
-        const { payment_intent, amount_total, status } = session
-        const { userId } = session.metadata as { userId: string }
+        const { payment_intent, amount_total, status, customer_email } = session
+        const metadata = session.metadata as {
+            userId: string
+            userEmail?: string
+            userName?: string
+            clerkUserId?: string
+            amount?: string
+            currency?: string
+            service?: string
+        }
 
-        if (!payment_intent || amount_total == null || !status || !userId) {
-            console.error('Missing session data', session)
-            return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+        console.log('Processing payment webhook:', {
+            sessionId: session.id,
+            paymentIntent: payment_intent,
+            amount: amount_total,
+            status,
+            customerEmail: customer_email,
+            metadata
+        })
+
+        if (!payment_intent || amount_total == null || !status || !metadata.userId) {
+            console.error('Missing required session data:', {
+                hasPaymentIntent: !!payment_intent,
+                hasAmount: amount_total != null,
+                hasStatus: !!status,
+                hasUserId: !!metadata.userId,
+                session
+            })
+            return NextResponse.json({ error: 'Missing required session data' }, { status: 400 })
         }
 
         try {
             await createPayment({
-                userId,
+                userId: metadata.userId,
                 paymentIntentId: payment_intent.toString(),
                 status: status,
                 amount: amount_total,
+            })
+
+            console.log('Payment successfully saved to database:', {
+                userId: metadata.userId,
+                paymentIntentId: payment_intent.toString(),
+                amount: amount_total
             })
         } catch (error) {
             console.error('Error saving payment to database:', error)

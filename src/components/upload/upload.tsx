@@ -10,9 +10,10 @@ export interface FileDropzoneProps {
     uploadError?: string | null
     disabled?: boolean
     disabledMessage?: string
+    loading?: boolean
 }
 
-export default function Upload({ onFileUploadAction, onUploadError, uploadError, disabled = false, disabledMessage }: FileDropzoneProps) {
+export default function Upload({ onFileUploadAction, onUploadError, uploadError, disabled = false, disabledMessage, loading = false }: FileDropzoneProps) {
     const onDrop = useCallback(
         <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[]) => {
             if (fileRejections.length > 0) {
@@ -54,6 +55,19 @@ export default function Upload({ onFileUploadAction, onUploadError, uploadError,
         multiple: false,
         disabled: disabled,
     })
+
+    if (loading) {
+        return (
+            <div className="w-full max-w-[600px] space-y-4">
+                <div className="w-full border-2 border-dashed border-gray-200 rounded-lg p-8 text-center bg-gray-50 space-y-3">
+                    <div className="animate-pulse space-y-3">
+                        <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                        <div className="h-5 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="w-full max-w-[600px] space-y-4">
