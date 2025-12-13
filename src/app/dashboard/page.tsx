@@ -27,9 +27,13 @@ export default function DashboardPage() {
         loadTranscriptions()
     }, [userId])
 
+    const handleTranscriptionsUpdate = (updatedTranscriptions: Transcription[]) => {
+        setTranscriptions(updatedTranscriptions)
+    }
+
     if (isLoading) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>
     }
 
-    return <Dashboard transcriptions={transcriptions} />
+    return <Dashboard transcriptions={transcriptions} onTranscriptionsUpdate={handleTranscriptionsUpdate} />
 }

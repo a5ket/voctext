@@ -6,7 +6,6 @@ import { AudioWaveformIcon as Waveform, Trash2, Check, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { formatDate } from '@/lib/utils'
-import { deleteTranscription } from '@/lib/api'
 
 export interface DashboardSidebarItemProps {
     transcription: Transcription
@@ -17,6 +16,7 @@ export interface DashboardSidebarItemProps {
 
 export default function DashboardSidebarItem({ transcription, isSelected, onClick, onDelete }: DashboardSidebarItemProps) {
     const [isDeleting, setIsDeleting] = useState(false)
+    const [isProcessing, setIsProcessing] = useState(false)
 
     const handleDelete = async () => {
         if (!isDeleting) {
@@ -24,12 +24,20 @@ export default function DashboardSidebarItem({ transcription, isSelected, onClic
             return
         }
 
+        if (isProcessing) {
+            return
+        }
+
+        setIsProcessing(true)
+
         try {
-            await deleteTranscription(transcription.id)
-            onDelete(transcription.id)
+            console.log('Attempting to delete transcription:', transcription.id)
+            onDelete(transcription.id)  // Let parent handle the API call
+            console.log('Successfully triggered delete for transcription:', transcription.id)
         } catch (error) {
-            console.error('Failed to delete transcription:', error)
+            console.error('Failed to delete transcription:', transcription.id, error)
             setIsDeleting(false)
+            setIsProcessing(false)
         }
     }
 
@@ -61,6 +69,7 @@ export default function DashboardSidebarItem({ transcription, isSelected, onClic
                                     e.stopPropagation()
                                     handleDelete()
                                 }}
+                                disabled={isProcessing}
                             >
                                 <Check className="h-3 w-3" />
                             </Button>

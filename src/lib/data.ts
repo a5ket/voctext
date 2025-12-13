@@ -28,6 +28,15 @@ export async function createTranscriptionRequest(userId: string | null) {
     })
 }
 
+export async function createCompletedTranscriptionRequest(userId: string) {
+    return prisma.transcriptionRequest.create({
+        data: {
+            userId,
+            status: TranscriptionRequestStatus.COMPLETED
+        },
+    })
+}
+
 export async function confirmTranscriptionRequest(
     transcriptionRequest: TranscriptionRequest,
     transcription: Transcription,
@@ -68,6 +77,12 @@ export async function updateTranscriptionTitle(transcription: Prisma.Transcripti
     })
 }
 
+export async function findTranscriptionByIdAndUserId(id: string, userId: string) {
+    return prisma.transcription.findFirst({
+        where: { id, userId }
+    })
+}
+
 export async function deleteTranscription(transcription: Transcription) {
     return prisma.transcription.delete({
         where: {
@@ -83,9 +98,10 @@ export async function createPayment(payment: Prisma.PaymentCreateInput) {
 }
 
 export async function fetchUserTranscriptionCounter(userId: string) {
-    return prisma.transcription.count({
+    return prisma.transcriptionRequest.count({
         where: {
             userId,
+            status: 'COMPLETED'
         },
     })
 }

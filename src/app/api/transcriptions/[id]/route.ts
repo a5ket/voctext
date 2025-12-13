@@ -1,9 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { deleteTranscription, updateTranscriptionTitle } from '@/lib/data'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { deleteTranscription, updateTranscriptionTitle, fetchTranscriptions, findTranscriptionByIdAndUserId } from '@/lib/data'
 
 export async function DELETE(
     request: NextRequest,
@@ -17,12 +14,25 @@ export async function DELETE(
     }
 
     try {
-        const transcription = await prisma.transcription.findFirst({
-            where: { id, userId }
-        })
+        console.log('DELETE request - ID:', id, 'UserID:', userId)
+
+        const transcription = await findTranscriptionByIdAndUserId(id, userId)
+
+        console.log('Found transcription:', transcription)
 
         if (!transcription) {
-            return NextResponse.json({ error: 'Transcription not found' }, { status: 404 })
+            const allTranscriptionsForUser = await fetchTranscriptions(userId)
+            console.log('All transcriptions for user:', allTranscriptionsForUser.map(t => ({ id: t.id, title: t.title, userId: t.userId })))
+            console.log('Requested transcription ID:', id, 'not found for user:', userId)
+
+            return NextResponse.json({
+                error: 'Transcription not found',
+                details: {
+                    requestedId: id,
+                    userId: userId,
+                    availableTranscriptions: allTranscriptionsForUser.map(t => t.id)
+                }
+            }, { status: 404 })
         }
 
         await deleteTranscription(transcription)
@@ -52,9 +62,7 @@ export async function PATCH(
             return NextResponse.json({ error: 'Title is required' }, { status: 400 })
         }
 
-        const existingTranscription = await prisma.transcription.findFirst({
-            where: { id, userId }
-        })
+        const existingTranscription = await findTranscriptionByIdAndUserId(id, userId)
 
         if (!existingTranscription) {
             return NextResponse.json({ error: 'Transcription not found' }, { status: 404 })

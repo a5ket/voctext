@@ -9,7 +9,13 @@ import { deleteTranscription, updateTranscriptionTitle } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 
-export default function Dashboard({ transcriptions: initialTranscriptions }: { transcriptions: Transcription[] }) {
+export default function Dashboard({
+    transcriptions: initialTranscriptions,
+    onTranscriptionsUpdate
+}: {
+    transcriptions: Transcription[]
+    onTranscriptionsUpdate?: (transcriptions: Transcription[]) => void
+}) {
     const [transcriptions, setTranscriptions] = useState<Transcription[]>(initialTranscriptions)
     const [selectedTranscription, setSelectedTranscription] = useState<Transcription | undefined>(undefined)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -17,7 +23,9 @@ export default function Dashboard({ transcriptions: initialTranscriptions }: { t
     const handleDelete = async (id: string) => {
         try {
             await deleteTranscription(id)
-            setTranscriptions(prev => prev.filter(t => t.id !== id))
+            const updatedTranscriptions = transcriptions.filter(t => t.id !== id)
+            setTranscriptions(updatedTranscriptions)
+            onTranscriptionsUpdate?.(updatedTranscriptions)
             if (selectedTranscription?.id === id) {
                 setSelectedTranscription(undefined)
             }
@@ -29,7 +37,9 @@ export default function Dashboard({ transcriptions: initialTranscriptions }: { t
     const handleUpdate = async (id: string, title: string) => {
         try {
             await updateTranscriptionTitle(id, title)
-            setTranscriptions(prev => prev.map(t => t.id === id ? { ...t, title } : t))
+            const updatedTranscriptions = transcriptions.map(t => t.id === id ? { ...t, title } : t)
+            setTranscriptions(updatedTranscriptions)
+            onTranscriptionsUpdate?.(updatedTranscriptions)
             if (selectedTranscription?.id === id) {
                 setSelectedTranscription(prev => prev ? { ...prev, title } : prev)
             }

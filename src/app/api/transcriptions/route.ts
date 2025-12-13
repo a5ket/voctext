@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchTranscriptions, createTranscription } from '@/lib/data'
+import { fetchTranscriptions, createTranscription, createCompletedTranscriptionRequest } from '@/lib/data'
 
 export async function GET() {
     const { userId } = await auth()
@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
             language: "en",
             duration: 120,
         })
+
+        await createCompletedTranscriptionRequest(userId)
 
         return NextResponse.json({ data: transcription })
     } catch (error) {
