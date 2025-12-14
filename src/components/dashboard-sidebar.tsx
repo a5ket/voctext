@@ -48,7 +48,7 @@ export default function DashboardSidebar({ transcriptions, selectedTranscription
                 <SidebarGroup>
                     <SidebarGroupLabel>Recent Files</SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-4">
+                        <SidebarMenu className="gap-2">
                             {transcriptions.map((transcription) => (
                                 <DashboardSidebarItem
                                     key={transcription.id}

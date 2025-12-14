@@ -47,24 +47,31 @@ export default function DashboardSidebarItem({ transcription, isSelected, onClic
 
     return (
         <SidebarMenuItem>
-            <div className="group relative">
-                <SidebarMenuButton isActive={isSelected} onClick={onClick} className="pr-12 h-auto py-3">
-                    <Waveform className="h-4 w-6 shrink-0" />
+            <div className="group relative border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200 hover:shadow-sm bg-white">
+                <SidebarMenuButton
+                    isActive={isSelected}
+                    onClick={onClick}
+                    className={`pr-12 h-auto py-2.5 px-3 rounded-lg border-0 hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50 hover:bg-blue-50 text-blue-900' : 'bg-transparent'
+                        }`}
+                >
+                    <Waveform className={`h-4 w-5 shrink-0 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
                     <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                        <span className="font-medium truncate">{transcription.title}</span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className={`font-medium truncate text-sm ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                            {transcription.title}
+                        </span>
+                        <span className={`text-xs ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}>
                             {formatDate(transcription.createdAt)}
                         </span>
                     </div>
                 </SidebarMenuButton>
 
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     {isDeleting ? (
                         <>
                             <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-7 w-7 p-0 hover:bg-green-100 hover:text-green-600 bg-white border border-green-200 shadow-sm"
+                                className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-600 bg-white border border-green-300 shadow-sm rounded-md"
                                 onClick={(e: React.MouseEvent) => {
                                     e.stopPropagation()
                                     handleDelete()
@@ -76,7 +83,7 @@ export default function DashboardSidebarItem({ transcription, isSelected, onClic
                             <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-7 w-7 p-0 hover:bg-gray-100 bg-white border border-gray-200 shadow-sm"
+                                className="h-6 w-6 p-0 hover:bg-gray-100 bg-white border border-gray-300 shadow-sm rounded-md"
                                 onClick={(e: React.MouseEvent) => {
                                     e.stopPropagation()
                                     handleCancel()
@@ -89,7 +96,7 @@ export default function DashboardSidebarItem({ transcription, isSelected, onClic
                         <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                            className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 text-gray-400 border border-gray-200 bg-white shadow-sm rounded-md"
                             onClick={(e: React.MouseEvent) => {
                                 e.stopPropagation()
                                 handleDelete()

@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchTranscriptions, createTranscription, createCompletedTranscriptionRequest } from '@/lib/data'
+import { fetchFileTranscription, fileUploadSchema } from '@/lib/transcription'
 
 export async function GET() {
     const { userId } = await auth()
@@ -34,12 +35,23 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 })
         }
 
+        // Validate file
+        const validation = fileUploadSchema.safeParse({ file })
+        if (!validation.success) {
+            return NextResponse.json({
+                error: validation.error.errors[0].message
+            }, { status: 400 })
+        }
+
+        // Process actual transcription using OpenAI Whisper
+        const transcriptionData = await fetchFileTranscription(file)
+
         const transcription = await createTranscription({
             userId,
             title: file.name.replace(/\.[^/.]+$/, ""),
-            text: "This is a mock transcription. In a real application, this would be the actual transcribed text from the audio file.",
-            language: "en",
-            duration: 120,
+            text: transcriptionData.text,
+            language: transcriptionData.language,
+            duration: transcriptionData.duration,
         })
 
         await createCompletedTranscriptionRequest(userId)

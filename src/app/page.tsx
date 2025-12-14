@@ -12,7 +12,6 @@ import { uploadFileTranscription } from '@/lib/api'
 import Head from './head'
 import SupportForm from '@/components/support/form'
 import { SupportPaymentNotification } from '@/components/support/notification'
-import Loader from '@/components/ui/loader'
 import UploadLimits from '@/components/upload-limits'
 
 export default function Page() {
@@ -132,7 +131,7 @@ export default function Page() {
                     <main className="flex flex-col items-center space-y-6">
                         <UploadLimits refreshTrigger={refreshTrigger} loading={uploadLimitsLoading} />
 
-                        <div className="w-full max-w-[600px] px-4">
+                        <div className="w-full max-w-md px-4">
                             <Upload
                                 onFileUploadAction={onAudioFileUpload}
                                 onUploadError={setUploadError}
@@ -140,6 +139,7 @@ export default function Page() {
                                 disabled={uploadLimits ? uploadLimits.remainingTranscriptions <= 0 : false}
                                 disabledMessage="Upload limit reached. Please upgrade to continue uploading."
                                 loading={uploadLimitsLoading}
+                                processing={isLoadingTranscription}
                             />
                         </div>
 
@@ -148,8 +148,6 @@ export default function Page() {
                                 <TranscriptionViewer transcription={transcription} />
                             </div>
                         )}
-
-                        {isLoadingTranscription && <Loader />}
                         <SupportForm />
                     </main>
                 </div>

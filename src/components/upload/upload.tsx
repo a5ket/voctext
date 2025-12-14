@@ -11,9 +11,10 @@ export interface FileDropzoneProps {
     disabled?: boolean
     disabledMessage?: string
     loading?: boolean
+    processing?: boolean
 }
 
-export default function Upload({ onFileUploadAction, onUploadError, uploadError, disabled = false, disabledMessage, loading = false }: FileDropzoneProps) {
+export default function Upload({ onFileUploadAction, onUploadError, uploadError, disabled = false, disabledMessage, loading = false, processing = false }: FileDropzoneProps) {
     const onDrop = useCallback(
         <T extends File>(acceptedFiles: T[], fileRejections: FileRejection[]) => {
             if (fileRejections.length > 0) {
@@ -58,7 +59,7 @@ export default function Upload({ onFileUploadAction, onUploadError, uploadError,
 
     if (loading) {
         return (
-            <div className="w-full max-w-[600px] space-y-4">
+            <div className="w-full max-w-md space-y-4">
                 <div className="w-full border-2 border-dashed border-gray-200 rounded-lg p-8 text-center bg-gray-50 space-y-3">
                     <div className="animate-pulse space-y-3">
                         <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto"></div>
@@ -69,8 +70,29 @@ export default function Upload({ onFileUploadAction, onUploadError, uploadError,
         )
     }
 
+    if (processing) {
+        return (
+            <div className="w-full max-w-md space-y-4">
+                <div className="w-full border-2 border-dashed border-blue-200 rounded-lg p-8 text-center bg-blue-50 space-y-4">
+                    <div className="flex items-center justify-center space-x-2">
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                    <div className="space-y-2">
+                        <p className="text-blue-700 font-medium">Processing your audio file...</p>
+                        <p className="text-blue-600 text-sm">This may take a few moments depending on file size</p>
+                    </div>
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                        <div className="bg-blue-500 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className="w-full max-w-[600px] space-y-4">
+        <div className="w-full max-w-md space-y-4">
             <div
                 {...getRootProps()}
                 className={`w-full border-2 border-dashed rounded-lg p-8 text-center transition-colors space-y-3
