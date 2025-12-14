@@ -13,6 +13,7 @@ import Head from './head'
 import SupportForm from '@/components/support/form'
 import { SupportPaymentNotification } from '@/components/support/notification'
 import UploadLimits from '@/components/upload-limits'
+import Footer from '@/components/footer'
 
 export default function Page() {
     const router = useRouter()
@@ -150,6 +151,7 @@ export default function Page() {
                         )}
                         <SupportForm />
                     </main>
+                    <Footer />
                 </div>
             </div>
         </>
