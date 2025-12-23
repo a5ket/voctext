@@ -18,6 +18,9 @@ export const metadata = {
         description:
             'Upload audio files and get accurate AI transcriptions in seconds.',
     },
+    verification: {
+        google: 'o9LR6eO9ZEMPfcVpA5KD81BeC8u9juatpkTAQgpIXCk'
+    }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
