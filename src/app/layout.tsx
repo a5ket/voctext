@@ -1,6 +1,8 @@
 import '@/components/ui/globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
-import type { Metadata } from 'next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { type Metadata } from 'next'
+
 
 export const metadata: Metadata = {
     title: 'Voctext — AI Audio Transcription',
@@ -71,7 +73,10 @@ export default function RootLayout({
             }}
         >
             <html lang="en">
-                <body>{children}</body>
+                <body>
+                    {children}
+                    <SpeedInsights />
+                </body>
             </html>
         </ClerkProvider>
     )
