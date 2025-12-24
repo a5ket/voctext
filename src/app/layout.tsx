@@ -4,8 +4,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
     title: 'Voctext — AI Audio Transcription',
-    description:
-        'AI-powered audio transcription tool for interviews, meetings, podcasts, and notes.',
+    description: 'Convert audio to text using AI. Upload your audio file and receive an accurate transcription in seconds.',
 
     metadataBase: new URL('https://voctext.vercel.app'),
 
