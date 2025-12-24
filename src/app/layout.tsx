@@ -4,19 +4,21 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
     title: 'Voctext — AI Audio Transcription',
-    description: 'AI-powered audio transcription SaaS-like app with Stripe payments.',
+    description:
+        'AI-powered audio transcription tool for interviews, meetings, podcasts, and notes.',
 
     metadataBase: new URL('https://voctext.vercel.app'),
 
     openGraph: {
         title: 'Voctext — AI Audio Transcription',
-        description: 'Upload audio files and get accurate AI transcriptions in seconds.',
+        description:
+            'AI-powered audio transcription tool for interviews, meetings, podcasts, and notes.',
         url: '/',
         siteName: 'Voctext',
         type: 'website',
         images: [
             {
-                url: '/og',
+                url: '/opengraph-image',
                 width: 1200,
                 height: 630,
                 alt: 'Voctext — AI Audio Transcription',
@@ -27,10 +29,11 @@ export const metadata: Metadata = {
     twitter: {
         card: 'summary_large_image',
         title: 'Voctext — AI Audio Transcription',
-        description: 'Upload audio files and get accurate AI transcriptions in seconds.',
+        description:
+            'AI-powered audio transcription tool for interviews, meetings, podcasts, and notes.',
         images: [
             {
-                url: '/og',
+                url: '/opengraph-image',
                 width: 1200,
                 height: 630,
                 alt: 'Voctext — AI Audio Transcription',
@@ -50,7 +53,7 @@ export const metadata: Metadata = {
 
     alternates: {
         canonical: 'https://voctext.vercel.app/',
-    }
+    },
 }
 
 export default function RootLayout({
