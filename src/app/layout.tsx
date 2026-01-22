@@ -10,6 +10,20 @@ export const metadata: Metadata = {
 
     metadataBase: new URL('https://voctext.vercel.app'),
 
+    keywords: ['AI transcription', 'audio to text', 'speech to text', 'whisper AI', 'transcribe audio', 'voice transcription', 'AI audio converter'],
+
+    authors: [{ name: 'Maksym Kotsiuruba' }],
+    category: 'AI Tools',
+
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+        },
+    },
+
     openGraph: {
         title: 'Voctext — AI Audio Transcription',
         description:

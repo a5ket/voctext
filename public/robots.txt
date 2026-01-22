@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://voctext.vercel.app/sitemap.xml

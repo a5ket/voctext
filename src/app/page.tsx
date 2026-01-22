@@ -7,8 +7,32 @@ import UploadSection from '@/components/upload/upload-section'
 import { Suspense } from 'react'
 
 export default function Page() {
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Voctext',
+        description: 'AI-powered audio transcription tool for interviews, meetings, podcasts, and notes.',
+        url: 'https://voctext.vercel.app',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web Browser',
+        offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+            description: 'Free tier available'
+        },
+        creator: {
+            '@type': 'Person',
+            name: 'Maksym Kotsiuruba'
+        }
+    }
+
     return (
         <main className="flex justify-center">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <PaymentSuccessBanner />
 
             <div className="max-w-3xl w-full p-6 space-y-8">
